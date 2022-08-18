@@ -7,9 +7,7 @@ println("")
 
 nextflow.enable.dsl               = 2
 
-params.outdir                     = workflow.launchDir + '/nextstrain_build'
-params.maxcpus                    = 12
-params.medcpus                    = 4
+params.outdir                     = workflow.launchDir + '/Nextstrain_Build'
 
 // Params go here
 params.fastas                         = false
@@ -39,12 +37,14 @@ params.joint                          =  ''
 params.colors                         =  false
 params.lat_longs                      =  false
 params.auspice_config                 =  false
+params.nthreads                       = 'auto'
+params.large                          = ''
 
 
 
 
 // Import subworkflows
-//include {verify_input} from './subworkflows/verify_input.nf'
+include {verify_input} from './modules/verify_input.nf'
 
 include {prepare_sequences} from './subworkflows/prepare_sequences.nf'
 
@@ -54,10 +54,6 @@ include { export }                from  './modules/export'
 
 
 // Create Initial Channels
-
-//params.multi_fasta            = '../data/sequences.fasta'
-
-dummy = Channel.value( 'You a dummy!')
 
 if (!params.fastas && !params.multi_fasta ){
   println("Must provide multifasta or fastas")
@@ -76,9 +72,9 @@ if( params.fastas ){
     .set { multifasta }
 }
 
-if( params.multi_fasta){
+if( params.multi_fasta && !params.fastas){
   multifasta = Channel.fromPath(params.multi_fasta, type:'file')
-}else { multifasta = Channel.value([])}
+}
 
 meta_data = Channel.fromPath(params.metadata, type:'file')
 
@@ -101,11 +97,9 @@ else{auspice_config = Channel.value([])}
 
 workflow {
 
-/*
   if(params.verify_input){
-    verify_input(dummy, multifasta, meta_data, dropped_strains, outgroup, colors, lat_longs, auspice_config )
+    verify_input(multifasta, meta_data, dropped_strains, outgroup, colors, lat_longs, auspice_config )
   }
-*/
 
   prepare_sequences(multifasta, meta_data, dropped_strains, outgroup)
 
