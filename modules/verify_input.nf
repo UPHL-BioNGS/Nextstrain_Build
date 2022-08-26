@@ -1,19 +1,21 @@
 process verify_input{
 
+    container 'amancevice/pandas'
+
     input:
-    file(multifasta)
-    file(meta_data)
-    file(dropped_strains)
-    file(outgroup)
-    file(colors)
-    file(lat_longs)
-    file(auspice_config)
+    path(multifasta)
+    path(meta_data)
+    path(dropped_strains)
+    path(outgroup)
+    path(colors)
+    path(lat_longs)
+    path(auspice_config)
 
 
     output:
 
     shell:
     '''
-    echo "Work in progress"
+    verify.py !{meta_data} !{multifasta}
     '''
 }
